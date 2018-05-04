@@ -4,10 +4,10 @@ require "command_helper"
 describe Command::Log do
   include CommandHelper
 
-  def commit_file(message)
+  def commit_file(message, time = nil)
     write_file "file.txt", message
     jit_cmd "add", "."
-    commit message
+    commit message, time
   end
 
   describe "with a chain of commits" do
@@ -160,6 +160,42 @@ describe Command::Log do
         +++ b/file.txt
         @@ -0,0 +1,1 @@
         +A
+      LOGS
+    end
+  end
+
+  describe "with a tree of commits" do
+
+    #  m1  m2  m3
+    #   o---o---o [main]
+    #        \
+    #         o---o---o---o [topic]
+    #        t1  t2  t3  t4
+
+    before do
+      (1..3).each { |n| commit_file "main-#{n}" }
+
+      jit_cmd "branch", "topic", "main^"
+      jit_cmd "checkout", "topic"
+
+      @branch_time = Time.now + 10
+      (1..4).each { |n| commit_file "topic-#{n}", @branch_time }
+
+      @main  = (0..2).map { |n| resolve_revision("main~#{n}") }
+      @topic = (0..3).map { |n| resolve_revision("topic~#{n}") }
+    end
+
+    it "logs the combined history of multiple branches" do
+      jit_cmd "log", "--pretty=oneline", "--decorate=short", "main", "topic"
+
+      assert_stdout <<~LOGS
+        #{ @topic[0] } (HEAD -> topic) topic-4
+        #{ @topic[1] } topic-3
+        #{ @topic[2] } topic-2
+        #{ @topic[3] } topic-1
+        #{ @main[0]  } (main) main-3
+        #{ @main[1]  } main-2
+        #{ @main[2]  } main-1
       LOGS
     end
   end
