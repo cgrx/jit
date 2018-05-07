@@ -198,5 +198,46 @@ describe Command::Log do
         #{ @main[2]  } main-1
       LOGS
     end
+
+    it "logs the difference from one one branch to another" do
+      jit_cmd "log", "--pretty=oneline", "main..topic"
+
+      assert_stdout <<~LOGS
+        #{ @topic[0] } topic-4
+        #{ @topic[1] } topic-3
+        #{ @topic[2] } topic-2
+        #{ @topic[3] } topic-1
+      LOGS
+
+      jit_cmd "log", "--pretty=oneline", "main", "^topic"
+
+      assert_stdout <<~LOGS
+        #{ @main[0] } main-3
+      LOGS
+    end
+
+    it "excludes a long branch when commit times are equal" do
+      jit_cmd "branch", "side", "topic^^"
+      jit_cmd "checkout", "side"
+
+      (1..10).each { |n| commit_file "side-#{n}", @branch_time }
+
+      jit_cmd "log", "--pretty=oneline", "side..topic", "^main"
+
+      assert_stdout <<~LOGS
+        #{ @topic[0] } topic-4
+        #{ @topic[1] } topic-3
+      LOGS
+    end
+
+    it "logs the last few commits on a branch" do
+      jit_cmd "log", "--pretty=oneline", "@~3.."
+
+      assert_stdout <<~LOGS
+        #{ @topic[0] } topic-4
+        #{ @topic[1] } topic-3
+        #{ @topic[2] } topic-2
+      LOGS
+    end
   end
 end
