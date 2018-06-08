@@ -379,5 +379,29 @@ describe Command::Log do
         #{ @topic[0] } H
       LOGS
     end
+
+    it "does not show patches for merge commits" do
+      jit_cmd "log", "--pretty=oneline", "--patch", "topic..main", "^main^^^"
+
+      assert_stdout <<~LOGS
+        #{ @main[0] } K
+        diff --git a/f.txt b/f.txt
+        index 02358d2..449e49e 100644
+        --- a/f.txt
+        +++ b/f.txt
+        @@ -1,1 +1,1 @@
+        -D
+        +K
+        #{ @main[1] } J
+        #{ @main[2] } D
+        diff --git a/f.txt b/f.txt
+        index 96d80cd..02358d2 100644
+        --- a/f.txt
+        +++ b/f.txt
+        @@ -1,1 +1,1 @@
+        -C
+        +D
+      LOGS
+    end
   end
 end
