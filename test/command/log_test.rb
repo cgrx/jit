@@ -374,6 +374,29 @@ describe Command::Log do
       LOGS
     end
 
+    it "logs the first parent of a merge" do
+      jit_cmd "log", "--pretty=oneline", "main^^"
+
+      assert_stdout <<~LOGS
+        #{ @main[2] } D
+        #{ @main[3] } C
+        #{ @main[4] } B
+        #{ @main[5] } A
+      LOGS
+    end
+
+    it "logs the second parent of a merge" do
+      jit_cmd "log", "--pretty=oneline", "main^^2"
+
+      assert_stdout <<~LOGS
+        #{ @topic[1] } G
+        #{ @topic[2] } F
+        #{ @topic[3] } E
+        #{ @main[4]  } B
+        #{ @main[5]  } A
+      LOGS
+    end
+
     it "logs unmerged commits on a branch" do
       jit_cmd "log", "--pretty=oneline", "main..topic"
 
