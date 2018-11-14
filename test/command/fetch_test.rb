@@ -72,6 +72,27 @@ describe Command::Fetch do
                    repo.refs.read_ref("refs/remotes/other/prefix-main")
     end
 
+    it "accepts short-hand refs in the fetch refspec" do
+      jit_cmd "fetch", "origin", "main:topic"
+
+      assert_equal @remote.repo.refs.read_ref("refs/heads/main"),
+                   repo.refs.read_ref("refs/heads/topic")
+    end
+
+    it "accepts short-hand head refs in the fetch refspec" do
+      jit_cmd "fetch", "origin", "main:heads/topic"
+
+      assert_equal @remote.repo.refs.read_ref("refs/heads/main"),
+                   repo.refs.read_ref("refs/heads/topic")
+    end
+
+    it "accepts short-hand remote refs in the fetch refspec" do
+      jit_cmd "fetch", "origin", "main:remotes/topic"
+
+      assert_equal @remote.repo.refs.read_ref("refs/heads/main"),
+                   repo.refs.read_ref("refs/remotes/topic")
+    end
+
     it "does not create any other local refs" do
       jit_cmd "fetch"
 
