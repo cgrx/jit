@@ -337,5 +337,18 @@ describe Command::Branch do
         * main #{ @head } local
       BRANCH
     end
+
+    it "resolves the @{upstream} revision" do
+      jit_cmd "branch", "--set-upstream-to", "origin/main"
+
+      refute_equal resolve_revision("origin/main"),
+                   resolve_revision("main")
+
+      assert_equal resolve_revision("origin/main"),
+                   resolve_revision("@{U}")
+
+      assert_equal resolve_revision("origin/main"),
+                   resolve_revision("main@{upstream}")
+    end
   end
 end

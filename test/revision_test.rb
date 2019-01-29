@@ -67,5 +67,29 @@ describe Revision do
             1),
           3)
     end
+
+    it "parses an upstream" do
+      assert_parse "main@{uPsTrEaM}",
+        Revision::Upstream.new(Revision::Ref.new("main"))
+    end
+
+    it "parses a short-hand upstream" do
+      assert_parse "main@{u}",
+        Revision::Upstream.new(Revision::Ref.new("main"))
+    end
+
+    it "parses an upstream with no branch" do
+      assert_parse "@{u}",
+        Revision::Upstream.new(Revision::Ref.new("HEAD"))
+    end
+
+    it "parses an upstream with some ancestor operators" do
+      assert_parse "main@{u}^~3",
+        Revision::Ancestor.new(
+          Revision::Parent.new(
+            Revision::Upstream.new(Revision::Ref.new("main")),
+            1),
+          3)
+    end
   end
 end
