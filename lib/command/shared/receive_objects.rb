@@ -35,3 +35,11 @@ module Command
 
   end
 end
+
+__END__
+
+free vars:
+
+  - @conn.input
+  - repo.{config,database}
+  - @stderr

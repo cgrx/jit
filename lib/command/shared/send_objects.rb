@@ -22,3 +22,11 @@ module Command
 
   end
 end
+
+__END__
+
+free vars:
+
+  - @conn.{output,capable?}
+  - repo.{config,database}, passed to RevList
+  - @stderr
